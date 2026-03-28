@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Document Type - LegalVoice.AI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="LegalVoice.AI Logo" style="width: 100px; height: auto; display: block; margin: 0 auto; padding-bottom: 10px;">
+        <h1>Document Selection</h1>
+        <p class="subheading">Choose the type of legal document you need assistance with</p>
+    </header>
+
+    <!-- Navigation will be loaded here -->
+    <div id="nav-placeholder"></div>
+
+    <div class="container">
+        <section class="document-selector">
+            <div class="chat-interface">
+                <div class="chat-container" id="chatContainer">
+                    <div class="message ai-message">
+                        <div class="message-bubble">Hello! I'm your LegalVoice assistant. What type of document do you need help with today?</div>
+                    </div>
+                    <!-- Chat messages will appear here -->
+                </div>
+                <div class="chat-input">
+                    <button id="microphoneBtn" class="mic-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M5 3a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0V3z"/>
+                            <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"/>
+                        </svg>
+                        Speak
+                    </button>
+                    <input type="text" id="chatInput" placeholder="Type your response here...">
+                    <button id="sendBtn">Send</button>
+                </div>
+            </div>
+
+            <div class="document-options">
+                <h3>Or Select from Available Documents:</h3>
+                <div class="document-card-container">
+                    <div class="document-option-card" data-doc-type="challan">
+                        <div class="doc-icon">🚗</div>
+                        <h4>Traffic Challan</h4>
+                        <p>Payment form for traffic violations</p>
+                    </div>
+                    <div class="document-option-card" data-doc-type="affidavit">
+                        <div class="doc-icon">📜</div>
+                        <h4>Affidavit</h4>
+                        <p>General purpose legal affidavit</p>
+                    </div>
+                    <div class="document-option-card" data-doc-type="poa">
+                        <div class="doc-icon">👤</div>
+                        <h4>Power of Attorney</h4>
+                        <p>Delegate legal authority</p>
+                    </div>
+                    <div class="document-option-card" data-doc-type="rent">
+                        <div class="doc-icon">🏠</div>
+                        <h4>Rent Agreement</h4>
+                        <p>Standard rental contract</p>
+                    </div>
+                    <div class="document-option-card" data-doc-type="income">
+                        <div class="doc-icon">💰</div>
+                        <h4>Income Declaration</h4>
+                        <p>Official income statement</p>
+                    </div>
+                    <div class="document-option-card" data-doc-type="will">
+                        <div class="doc-icon">📝</div>
+                        <h4>Will</h4>
+                        <p>Basic will document</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="statusMessage" class="status-message" style="display: none;">
+        Listening...
+    </div>
+
+    <div class="legal-disclaimer">
+        <p><strong>Disclaimer:</strong> This application is provided for informational and convenience purposes only and is not a substitute for professional legal advice. For legal matters, please consult with a qualified attorney.</p>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 LegalVoice.AI Assistant | All Rights Reserved</p>
+        <p>A secure and efficient way to complete legal documentation</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function(){
+            $("#nav-placeholder").load("nav.html");
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.23.0/dist/date-fns.min.js"></script>
+    <script src="document_selector.js"></script>
+</body>
+</html>

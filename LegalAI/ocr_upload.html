@@ -1,0 +1,111 @@
+r_upload.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload & Analyze Documents - LegalVoice.AI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="LegalVoice.AI Logo" style="width: 100px; height: auto; display: block; margin: 0 auto; padding-bottom: 10px;">
+        <h1>Document Analysis</h1>
+        <p class="subheading">Upload legal documents for AI analysis and explanation</p>
+    </header>
+
+    <!-- Navigation will be loaded here -->
+    <div id="nav-placeholder"></div>
+
+    <div class="container">
+        <section class="ocr-upload-section">
+            <div class="upload-container">
+                <h2>Upload Your Document</h2>
+                <p>Upload legal documents in PDF, JPG, or PNG format for analysis. Our AI will extract text, summarize content, and help you understand the document.</p>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                            <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                        </svg>
+                    </div>
+                    <p>Drag & drop files here or</p>
+                    <label for="fileInput" class="upload-button">Select Files</label>
+                    <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                </div>
+
+                <div class="upload-status" id="uploadStatus" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress" id="uploadProgress" style="width: 0%"></div>
+                    </div>
+                    <p id="uploadStatusText">Uploading: 0%</p>
+                </div>
+            </div>
+
+            <div class="document-analysis" id="documentAnalysis" style="display: none;">
+                <div class="analysis-tabs">
+                    <button class="tab-button active" data-tab="summary">Summary</button>
+                    <button class="tab-button" data-tab="extracted">Extracted Text</button>
+                    <button class="tab-button" data-tab="analyze">Ask Questions</button>
+                </div>
+
+                <div class="tab-content">
+                    <div class="tab-pane active" id="summary">
+                        <h3>Document Summary</h3>
+                        <div class="summary-box" id="summaryContent">
+                            <!-- Summary will be inserted here -->
+                        </div>
+                        
+                        <h3>Key Information Detected</h3>
+                        <div class="key-info-grid" id="keyInfoGrid">
+                            <!-- Key information will be inserted here -->
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="extracted">
+                        <h3>Extracted Text</h3>
+                        <div class="extracted-text" id="extractedText">
+                            <!-- Extracted text will be inserted here -->
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="analyze">
+                        <h3>Ask About This Document</h3>
+                        <p>Ask questions about the document and get AI-powered answers.</p>
+                        
+                        <div class="chat-container" id="documentChatContainer">
+                            <!-- Chat messages will appear here -->
+                            <div class="message ai-message">
+                                <div class="message-bubble">What would you like to know about this document?</div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input">
+                            <input type="text" id="documentChatInput" placeholder="Ask a question...">
+                            <button id="documentChatSendBtn">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="legal-disclaimer">
+        <p><strong>Disclaimer:</strong> The document analysis is provided for informational purposes only. Our AI does its best to interpret legal documents, but may not catch all details or nuances. Always consult with a legal professional for important matters.</p>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 LegalVoice.AI Assistant | All Rights Reserved</p>
+        <p>A secure and efficient way to complete legal documentation</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function(){
+            $("#nav-placeholder").load("nav.html");
+        });
+    </script>
+    <script src="ocr_upload.js"></script>
+</body>
+</html>

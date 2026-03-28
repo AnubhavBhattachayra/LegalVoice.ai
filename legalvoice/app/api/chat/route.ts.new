@@ -1,0 +1,210 @@
+import { NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import {
+  extractDocumentType,
+  extractFormFields,
+  extractLegalTopic,
+  extractReferences,
+  calculateConfidence,
+  extractSource,
+  cleanText
+} from '@/app/utils/metadataExtractors';
+
+// Initialize Gemini API
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+
+export async function POST(req: Request) {
+  try {
+    const { message, language, userId, context } = await req.json();
+
+    // Initialize the model
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+    // Create a system prompt based on the context
+    const systemPrompt = createSystemPrompt(context);
+
+    // Create the chat history
+    const chatHistory = createChatHistory(context);
+
+    // Generate the response
+    const result = await model.generateContent([
+      systemPrompt,
+      ...chatHistory,
+      message
+    ]);
+
+    const response = await result.response;
+    const text = response.text();
+
+    // Process the response to determine the type and metadata
+    const processedResponse = await processResponse(text, context);
+
+    return NextResponse.json(processedResponse);
+  } catch (error) {
+    console.error('Error in chat route:', error);
+    return NextResponse.json(
+      { error: 'Failed to process message' },
+      { status: 500 }
+    );
+  }
+}
+
+function createSystemPrompt(context: any): string {
+  return `You are an AI legal assistant with expertise in Indian law. You can help with:
+1. Legal document creation and form filling
+2. Legal advice and consultation
+3. Document analysis and explanation
+4. Multi-language support (English and regional languages)
+
+Current context:
+- Language: ${context.language}
+- User Credits: ${context.userCredits}
+- Current Topic: ${context.currentTopic || 'Not specified'}
+- Document Type: ${context.documentType || 'Not specified'}
+- Form Type: ${context.formType || 'Not specified'}
+
+Please provide accurate, context-aware responses and suggest appropriate actions based on the user's needs.
+When providing legal advice, include relevant references to laws and precedents.
+When suggesting documents or forms, specify the type and required fields.`;
+}
+
+function createChatHistory(context: any): string[] {
+  // Convert context history to chat format
+  return context.history?.map((msg: any) => 
+    `${msg.role}: ${msg.content}`
+  ) || [];
+}
+
+async function processResponse(text: string, context: any) {
+  // Clean and normalize the text
+  const cleanedText = cleanText(text);
+
+  // Analyze the response to determine the type and extract metadata
+  const responseType = determineResponseType(cleanedText);
+  const metadata = extractMetadata(cleanedText, responseType);
+
+  // Add suggested actions based on the response type and metadata
+  const suggestedActions = generateSuggestedActions(responseType, metadata);
+
+  return {
+    message: text,
+    type: responseType,
+    metadata: {
+      ...metadata,
+      suggestedActions
+    },
+    context: {
+      ...context,
+      // Update context based on the response
+      currentTopic: metadata.legalTopic || context.currentTopic,
+      documentType: metadata.documentType || context.documentType,
+      formType: metadata.formType || context.formType
+    }
+  };
+}
+
+function determineResponseType(text: string): string {
+  // Analyze the text to determine the type of response
+  const lowerText = text.toLowerCase();
+  
+  if (lowerText.includes('document') || lowerText.includes('form')) {
+    return 'document';
+  } else if (lowerText.includes('consult') || lowerText.includes('lawyer')) {
+    return 'consultation';
+  } else if (lowerText.includes('advice') || lowerText.includes('recommendation')) {
+    return 'legal_advice';
+  } else if (lowerText.includes('analyze') || lowerText.includes('explain')) {
+    return 'analysis';
+  }
+  
+  return 'text';
+}
+
+function extractMetadata(text: string, type: string): any {
+  const metadata: any = {};
+  
+  // Extract relevant information based on the response type
+  switch (type) {
+    case 'document':
+      metadata.documentType = extractDocumentType(text);
+      metadata.formFields = extractFormFields(text);
+      break;
+    case 'consultation':
+      metadata.legalTopic = extractLegalTopic(text);
+      break;
+    case 'legal_advice':
+      metadata.references = extractReferences(text);
+      metadata.confidence = calculateConfidence(text);
+      break;
+    case 'analysis':
+      metadata.source = extractSource(text);
+      break;
+  }
+  
+  return metadata;
+}
+
+function generateSuggestedActions(type: string, metadata: any): Array<{ type: string; label: string; action: () => void }> {
+  const actions: Array<{ type: string; label: string; action: () => void }> = [];
+
+  switch (type) {
+    case 'document':
+      if (metadata.documentType) {
+        actions.push({
+          type: 'create_document',
+          label: `Create ${metadata.documentType.replace(/_/g, ' ')}`,
+          action: () => {
+            window.location.href = `/documents/create?type=${metadata.documentType}`;
+          }
+        });
+      }
+      if (metadata.formFields) {
+        actions.push({
+          type: 'fill_form',
+          label: 'Fill Form',
+          action: () => {
+            window.location.href = `/forms/fill?fields=${encodeURIComponent(JSON.stringify(metadata.formFields))}`;
+          }
+        });
+      }
+      break;
+
+    case 'consultation':
+      if (metadata.legalTopic) {
+        actions.push({
+          type: 'book_consultation',
+          label: 'Book Legal Consultation',
+          action: () => {
+            window.location.href = `/consultations/book?topic=${encodeURIComponent(metadata.legalTopic)}`;
+          }
+        });
+      }
+      break;
+
+    case 'legal_advice':
+      if (metadata.references?.length > 0) {
+        actions.push({
+          type: 'view_references',
+          label: 'View Legal References',
+          action: () => {
+            // Implement reference viewing logic
+          }
+        });
+      }
+      break;
+
+    case 'analysis':
+      if (metadata.source) {
+        actions.push({
+          type: 'view_analysis',
+          label: 'View Document Analysis',
+          action: () => {
+            window.location.href = `/analysis?source=${encodeURIComponent(metadata.source)}`;
+          }
+        });
+      }
+      break;
+  }
+
+  return actions;
+} 

@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.23.0/dist/date-fns.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegalVoice.AI Form Assistant</title>
+    <style>
+        :root {
+            --primary-color: #1a3c64;
+            --secondary-color: #527aa3;
+            --accent-color: #e6b800;
+            --light-color: #f5f5f5;
+            --dark-color: #333;
+            --success-color: #4CAF50;
+            --error-color: #f44336;
+            --font-primary: 'Georgia', serif;
+            --font-secondary: 'Arial', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-secondary);
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: var(--light-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            border-bottom: 5px solid var(--accent-color);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-family: var(--font-primary);
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subheading {
+            font-family: var(--font-secondary);
+            text-align: center;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .dual-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .voice-panel, .form-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .panel-header {
+            border-bottom: 2px solid var(--secondary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h2 {
+            font-family: var(--font-primary);
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #microphoneBtn {
+            margin-bottom: 20px;
+            background-color: var(--accent-color);
+            color: var(--dark-color);
+        }
+
+        #microphoneBtn:hover {
+            background-color: #d9ad00;
+        }
+
+        #microphoneBtn.recording {
+            background-color: var(--error-color);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .status-message {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .status-message.listening {
+            background-color: rgba(82, 122, 163, 0.2);
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .status-message.success {
+            background-color: rgba(76, 175, 80, 0.2);
+            border-left: 5px solid var(--success-color);
+        }
+
+        .status-message.error {
+            background-color: rgba(244, 67, 54, 0.2);
+            border-left: 5px solid var(--error-color);
+        }
+
+        .recognized-text {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .field-with-tooltip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tooltip-icon {
+            cursor: pointer;
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(82, 122, 163, 0.2);
+        }
+
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .tooltip {
+            display: none;
+            position: absolute;
+            background-color: #333;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            max-width: 300px;
+            z-index: 100;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+            border-top: 5px solid var(--accent-color);
+        }
+
+        .legal-disclaimer {
+            font-size: 0.85rem;
+            margin-top: 20px;
+            color: #999;
+            text-align: center;
+            padding: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            width: 70%;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close-modal:hover {
+            color: var(--dark-color);
+        }
+
+        /* Field highlighting when detected from voice */
+        .highlight-field {
+            background-color: rgba(230, 184, 0, 0.2);
+            border-color: var(--accent-color);
+            transition: all 0.5s;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .dual-panel {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="LegalVoice.AI Logo" style="width: 100px; height: auto; display: block; margin: 0 auto; padding-bottom: 10px;">
+        <h1>LegalVoice.AI Form Assistant</h1>
+        <p class="subheading">Fill legal forms effortlessly using voice commands</p>
+    </header>
+
+    <div class="container">
+        <div class="dual-panel">
+            <div class="voice-panel">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>Voice Recognition</h2>
+                    </div>
+                    
+                    <button id="microphoneBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M5 3a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0V3z"/>
+                            <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"/>
+                        </svg>
+                        Start Voice Recognition
+                    </button>
+                    
+                    <div id="statusMessage" class="status-message">
+                        Click the button above to start voice recognition.
+                    </div>
+                    
+                    <div id="recognizedText" class="recognized-text" style="display: none;">
+                        <h3>Recognized Speech:</h3>
+                        <p id="transcriptText"></p>
+                    </div>
+
+                    <div class="voice-instructions">
+                        <h3>Voice Command Tips:</h3>
+                        <ul>
+                            <li>Say "Full name: [your name]" to fill the name field</li>
+                            <li>Say "Date of birth: [date]" for your birth date</li>
+                            <li>Say "Address: [your address]" for your address</li>
+                            <li>Say "Email: [your email]" for your email</li>
+                            <li>Say "Phone: [your phone]" for your phone number</li>
+                            <li>Say "Submit form" to submit the form</li>
+                            <li>Say "Clear form" to reset all fields</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-panel">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>Legal Form</h2>
+                    </div>
+                    
+                    <form id="legalForm">
+                        <div class="form-group">
+                            <div class="field-with-tooltip">
+                                <label for="fullName">Full Legal Name</label>
+                                <span class="tooltip-icon" data-tooltip="Enter your complete legal name as it appears on your government-issued ID.">ⓘ</span>
+                            </div>
+                            <input type="text" id="fullName" name="fullName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="field-with-tooltip">
+                                <label for="dob">Date of Birth</label>
+                                <span class="tooltip-icon" data-tooltip="Enter your date of birth in MM/DD/YYYY format.">ⓘ</span>
+                            </div>
+                            <input type="date" id="dob" name="dob" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="field-with-tooltip">
+                                <label for="address">Legal Address</label>
+                                <span class="tooltip-icon" data-tooltip="Enter your current residential address. This must be your legal residence, not a P.O. box.">ⓘ</span>
+                            </div>
+                            <textarea id="address" name="address" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="field-with-tooltip">
+                                <label for="email">Email Address</label>
+                                <span class="tooltip-icon" data-tooltip="Enter a valid email address that you regularly check. Legal notifications may be sent to this address.">ⓘ</span>
+                            </div>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="field-with-tooltip">
+                                <label for="phone">Phone Number</label>
+                                <span class="tooltip-icon" data-tooltip="Enter a phone number where you can be reached during business hours.">ⓘ</span>
+                            </div>
+                            <input type="tel" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="Format: 123-456-7890" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="field-with-tooltip">
+                                <label for="legalPurpose">Purpose of Legal Form</label>
+                                <span class="tooltip-icon" data-tooltip="Select the purpose that best describes why you are filling out this form.">ⓘ</span>
+                            </div>
+                            <select id="legalPurpose" name="legalPurpose" required>
+                                <option value="">-- Select Purpose --</option>
+                                <option value="contract">Contract Review</option>
+                                <option value="willTrust">Will or Trust</option>
+                                <option value="powerOfAttorney">Power of Attorney</option>
+                                <option value="realEstate">Real Estate Transaction</option>
+                                <option value="business">Business Formation</option>
+                                <option value="other">Other Legal Matter</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="field-with-tooltip">
+                                <label for="legalDetails">Additional Details</label>
+                                <span class="tooltip-icon" data-tooltip="Provide any relevant details about your legal matter. Be specific but concise.">ⓘ</span>
+                            </div>
+                            <textarea id="legalDetails" name="legalDetails" rows="4"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="field-with-tooltip">
+                                <label for="urgency">Urgency Level</label>
+                                <span class="tooltip-icon" data-tooltip="Indicate how urgent your legal matter is.">ⓘ</span>
+                            </div>
+                            <select id="urgency" name="urgency" required>
+                                <option value="">-- Select Urgency --</option>
+                                <option value="immediate">Immediate (within 24 hours)</option>
+                                <option value="urgent">Urgent (within 3 days)</option>
+                                <option value="standard">Standard (within 1 week)</option>
+                                <option value="flexible">Flexible (within 1 month)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-footer">
+                            <button type="button" id="clearFormBtn">Clear Form</button>
+                            <button type="button" id="saveFormBtn">Save Form</button>
+                            <button type="button" id="downloadFormBtn">Download Form</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="legal-disclaimer">
+            <p><strong>Disclaimer:</strong> This form is a prototype for demonstration purposes only. In a real application, appropriate security measures would be implemented to protect your personal information. No actual legal advice is being provided through this interface. For legal matters, please consult with a qualified attorney.</p>
+        </div>
+    </div>
+
+    <!-- Modal for field explanations -->
+    <div id="explanationModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modalTitle">Field Explanation</h2>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 LegalVoice.AI Assistant | All Rights Reserved</p>
+        <p>A secure and efficient way to complete legal documentation</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const microphoneBtn = document.getElementById('microphoneBtn');
+            const statusMessage = document.getElementById('statusMessage');
+            const recognizedText = document.getElementById('recognizedText');
+            const transcriptText = document.getElementById('transcriptText');
+            const clearFormBtn = document.getElementById('clearFormBtn');
+            const saveFormBtn = document.getElementById('saveFormBtn');
+            const downloadFormBtn = document.getElementById('downloadFormBtn');
+            const legalForm = document.getElementById('legalForm');
+            const tooltipIcons = document.querySelectorAll('.tooltip-icon');
+            const modal = document.getElementById('explanationModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            const closeModal = document.querySelector('.close-modal');
+            
+            const fieldMappings = {
+                'full name': 'fullName',
+                'date of birth': 'dob',
+                'address': 'address',
+                'email': 'email',
+                'phone': 'phone',
+                'purpose': 'legalPurpose',
+                'details': 'legalDetails',
+                'urgency': 'urgency'
+            };
+            
+            let currentField = null;
+
+            // SpeechRecognition setup
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            let recognition;
+            
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                
+                // Initialize SpeechRecognition
+                recognition.onstart = function() {
+                    statusMessage.textContent = "Listening... Speak now.";
+                    statusMessage.className = "status-message listening";
+                    microphoneBtn.textContent = "Stop Listening";
+                    microphoneBtn.classList.add('recording');
+                    recognizedText.style.display = "block";
+                };
+                
+                recognition.onresult = function(event) {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                            processVoiceCommand(transcript);
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+                    
+                    transcriptText.innerHTML = finalTranscript + '<i style="color:#999">' + interimTranscript + '</i>';
+                };
+                
+                recognition.onerror = function(event) {
+                    statusMessage.textContent = "Error occurred in recognition: " + event.error;
+                    statusMessage.className = "status-message error";
+                };
+                
+                recognition.onend = function() {
+                    microphoneBtn.textContent = "Start Voice Recognition";
+                    microphoneBtn.classList.remove('recording');
+                };
+                
+            } else {
+                statusMessage.textContent = "Speech recognition not supported in this browser.";
+                statusMessage.className = "status-message error";
+                microphoneBtn.disabled = true;
+            }
+            
+            // Microphone button click handler
+            microphoneBtn.addEventListener('click', function() {
+                if (microphoneBtn.classList.contains('recording')) {
+                    recognition.stop();
+                    statusMessage.textContent = "Voice recognition stopped.";
+                    statusMessage.className = "status-message";
+                } else {
+                    recognition.start();
+                }
+            });
+            
+            // Process voice commands
+            function processVoiceCommand(transcript) {
+                const lowerTranscript = transcript.toLowerCase();
+                
+                // Process full name
+                if (lowerTranscript.includes("full name") || lowerTranscript.includes("name is")) {
+                    const nameMatch = transcript.match(/(?:full name|name is)[:\s]+([^.]+)/i);
+                    if (nameMatch && nameMatch[1]) {
+                        const fullName = nameMatch[1].trim();
+                        document.getElementById('fullName').value = fullName;
+                        highlightField('fullName');
+                    }
+                }
+                
+                // Process date of birth
+            if (lowerTranscript.includes("date of birth") || lowerTranscript.includes("born on")) {
+                const dateMatch = transcript.match(/(?:date of birth|born on)[:\s]+([^.]+)/i);
+                if (dateMatch && dateMatch[1]) {
+                    const dobText = dateMatch[1].trim();
+                    // Try to parse the date using date-fns
+                    try {
+                        const dobDate = dateFns.parse(dobText, 'MMMM d, yyyy', new Date());
+                        if (dateFns.isValid(dobDate)) {
+                            // Format as YYYY-MM-DD for the date input
+                            const formattedDate = dateFns.format(dobDate, 'yyyy-MM-dd');
+                            document.getElementById('dob').value = formattedDate;
+                            highlightField('dob');
+                        }
+                    } catch (e) {
+                        console.error("Could not parse date:", e);
+                    }
+                }
+            }
+                
+                // Process address
+                if (lowerTranscript.includes("address") || lowerTranscript.includes("live at")) {
+                    const addressMatch = transcript.match(/(?:address|live at)[:\s]+([^.]+)/i);
+                    if (addressMatch && addressMatch[1]) {
+                        document.getElementById('address').value = addressMatch[1].trim();
+                        highlightField('address');
+                    }
+                }
+                
+                // Process email
+                if (lowerTranscript.includes("email")) {
+                    // Try to extract email-like pattern
+                    const emailMatch = transcript.match(/email[:\s]+([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})/i);
+                    if (emailMatch && emailMatch[1]) {
+                        document.getElementById('email').value = emailMatch[1].trim();
+                        highlightField('email');
+                    }
+                }
+                
+                // Process phone
+                if (lowerTranscript.includes("phone")) {
+                    // Extract numbers only and format
+                    const phoneMatch = transcript.match(/phone[:\s]+([^.]+)/i);
+                    if (phoneMatch && phoneMatch[1]) {
+                        const phoneText = phoneMatch[1].trim();
+                        const digitsOnly = phoneText.replace(/\D/g, '');
+                        if (digitsOnly.length >= 10) {
+                            const formattedPhone = `${digitsOnly.slice(0,3)}-${digitsOnly.slice(3,6)}-${digitsOnly.slice(6,10)}`;
+                            document.getElementById('phone').value = formattedPhone;
+                            highlightField('phone');
+                        }
+                    }
+                }
+                
+                // Process purpose
+                if (lowerTranscript.includes("purpose")) {
+                    const purposeSelect = document.getElementById('legalPurpose');
+                    const options = Array.from(purposeSelect.options).map(opt => opt.text.toLowerCase());
+                    
+                    for (let i = 0; i < options.length; i++) {
+                        if (lowerTranscript.includes(options[i].toLowerCase())) {
+                            purposeSelect.selectedIndex = i;
+                            highlightField('legalPurpose');
+                            break;
+                        }
+                    }
+                }
+                
+                // Process urgency
+                if (lowerTranscript.includes("urgency")) {
+                    const urgencySelect = document.getElementById('urgency');
+                    const options = Array.from(urgencySelect.options).map(opt => opt.text.toLowerCase());
+                    
+                    for (let i = 0; i < options.length; i++) {
+                        if (lowerTranscript.includes(options[i].toLowerCase())) {
+                            urgencySelect.selectedIndex = i;
+                            highlightField('urgency');
+                            break;
+                        }
+                    }
+                }
+                
+                // Process details
+                if (lowerTranscript.includes("details")) {
+                    const detailsMatch = transcript.match(/details[:\s]+([^.]+)/i);
+                    if (detailsMatch && detailsMatch[1]) {
+                        document.getElementById('legalDetails').value = detailsMatch[1].trim();
+                        highlightField('legalDetails');
+                    }
+                }
+                
+                // Handle form commands
+                if (lowerTranscript.includes("clear form") || lowerTranscript.includes("reset form")) {
+                    clearForm();
+                    statusMessage.textContent = "Form cleared.";
+                    statusMessage.className = "status-message success";
+                }
+                
+                if (lowerTranscript.includes("submit form") || lowerTranscript.includes("save form")) {
+                    saveForm();
+                }
+                
+                if (lowerTranscript.includes("download form")) {
+                    downloadForm();
+                }
+            }
+            
+            // Highlight field when filled by voice
+            function highlightField(fieldId) {
+                const field = document.getElementById(fieldId);
+                field.classList.add('highlight-field');
+                setTimeout(() => {
+                    field.classList.remove('highlight-field');
+                }, 2000);
+            }
+            
+            // Form action handlers
+            function clearForm() {
+                legalForm.reset();
+            }
+            
+            function saveForm() {
+                // Form validation
+                if (!legalForm.checkValidity()) {
+                    legalForm.reportValidity();
+                    return;
+                }
+                
+                // Collect form data
+                const formData = {};
+                new FormData(legalForm).forEach((value, key) => {
+                    formData[key] = value;
+                });
+                
+                // Save to localStorage
+                localStorage.setItem('legalFormData', JSON.stringify(formData));
+                
+                // Send to server (in a real app)
+                fetch('/save_form', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    statusMessage.textContent = "Form saved successfully.";
+                    statusMessage.className = "status-message success";
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // For the prototype, show success even on error
+                    statusMessage.textContent = "Form saved to local storage successfully.";
+                    statusMessage.className = "status-message success";
+                });
+            }
+            
+            function downloadForm() {
+                // Check form validity
+                if (!legalForm.checkValidity()) {
+                    legalForm.reportValidity();
+                    return;
+                }
+                
+                // Collect form data
+                const formData = {};
+                new FormData(legalForm).forEach((value, key) => {
+                    formData[key] = value;
+                });
+                
+                // Create a formatted text version of the form
+                let formText = "LEGAL FORM SUBMISSION\n";
+                formText += "====================\n\n";
+                formText += `Full Name: ${formData.fullName}\n`;
+                formText += `Date of Birth: ${formData.dob}\n`;
+                formText += `Address: ${formData.address}\n`;
+                formText += `Email: ${formData.email}\n`;
+                formText += `Phone: ${formData.phone}\n`;
+                formText += `Legal Purpose: ${document.getElementById('legalPurpose').options[document.getElementById('legalPurpose').selectedIndex].text}\n`;
+                formText += `Urgency: ${document.getElementById('urgency').options[document.getElementById('urgency').selectedIndex].text}\n`;
+                formText += `Additional Details: ${formData.legalDetails || 'None provided'}\n\n`;
+                formText += `Date Generated: ${new Date().toLocaleDateString()}\n`;
+                formText += `Time: ${new Date().toLocaleTimeString()}\n\n`;
+                formText += "DISCLAIMER: This is a prototype form for demonstration purposes only.\n";
+                
+                // Create download
+                const blob = new Blob([formText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Legal_Form_${formData.fullName.replace(/\s+/g, '_')}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                statusMessage.textContent = "Form downloaded successfully.";
+                statusMessage.className = "status-message success";
+            }
+            
+            // Button event listeners
+            clearFormBtn.addEventListener('click', clearForm);
+            saveFormBtn.addEventListener('click', saveForm);
+            downloadFormBtn.addEventListener('click', downloadForm);
+            
+            // Field explanation tooltips
+            tooltipIcons.forEach(icon => {
+                icon.addEventListener('click', function() {
+                    const tooltip = this.getAttribute('data-tooltip');
+                    const fieldName = this.previousElementSibling.textContent;
+                    
+                    modalTitle.textContent = fieldName + " Field Explanation";
+                    modalContent.innerHTML = getDetailedExplanation(fieldName, tooltip);
+                    modal.style.display = "block";
+                });
+            });
+            
+            // Close modal
+            closeModal.addEventListener('click', function() {
+                modal.style.display = "none";
+            });
+            
+            window.addEventListener('click', function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            });
+            
+            // Get detailed explanation for field
+            function getDetailedExplanation(fieldName, basicTooltip) {
+                    const explanations = {
+                        "Full Legal Name": {
+                            content: `
+                                <p>${basicTooltip}</p>
+                                <h3>Why This Matters</h3>
+                                <p>Your legal name establishes your identity for the purpose of this document. Using a name different from your official identification can invalidate legal documents or cause complications in legal proceedings.</p>
+                                <h3>Examples</h3>
+                                <p>Examples of full legal names include:</p>
+                                <ul>
+                                    <li>John Michael Doe</li>
+                                    <li>Jane Ann Smith</li>
+                                </ul>
+                            `
+                        },
+                        "Date of Birth": {
+                            content: `
+                                <p>${basicTooltip}</p>
+                                <h3>Why This Matters</h3>
+                                <p>Your date of birth is used to verify your age and identity. It is crucial for legal documents to ensure that you are of legal age to enter into agreements or contracts.</p>
+                                <h3>Examples</h3>
+                                <p>Examples of date of birth entries include:</p>
+                                <ul>
+                                    <li>01/15/1985</li>
+                                    <li>12/30/1990</li>
+                                </ul>
+                            `
+                        },
+                        "Legal Address": {
+                            content: `
+                                <p>${basicTooltip}</p>
+                                <h3>Why This Matters</h3>
+                                <p>Your legal address is used to establish your place of residence for legal purposes. It is important for receiving official documents and notifications.</p>
+                                <h3>Examples</h3>
+                                <p>Examples of legal addresses include:</p>
+                                <ul>
+                                    <li>123 Main St, Springfield, IL 62704</li>
+                                    <li>456 Elm St, Anytown, CA 90210</li>
+                                </ul>
+                            `
+                        },
+                        "Email Address": {
+                            content: `
+                                <p>${basicTooltip}</p>
+                                <h3>Why This Matters</h3>
+                                <p>Your email address is used for electronic communication and notifications. It is important to provide a valid email address to ensure you receive important updates.</p>
+                                <h3>Examples</h3>
+                                <p>Examples of email addresses include:</p>
+                                <ul>
+                                    <li>john.doe@example.com</li>
+                                    <li>jane.smith@domain.com</li>
+                                </ul>
+                            `
+                        },
+                        "Phone Number": {
+                            content: `
+                                <p>${basicTooltip}</p>
+                                <h3>Why This Matters</h3>
+                                <p>Your phone number is used for direct communication. It is important to provide a number where you can be reached for urgent matters.</p>
+                                <h3>Examples</h3>
+                                <p>Examples of phone numbers include:</p>
+                                <ul>
+                                    <li>123-456-7890</li>
+                                    <li>987-654-3210</li>
+                                </ul>
+                            `
+                        },
+                        "Purpose of Legal Form": {
+                            content: `
+                                <p>${basicTooltip}</p>
+                                <h3>Why This Matters</h3>
+                                <p>The purpose of the legal form helps to categorize the nature of your legal matter. This information is important for processing and addressing your specific needs.</p>
+                                <h3>Examples</h3>
+                                <p>Examples of purposes include:</p>
+                                <ul>
+                                    <li>Contract Review</li>
+                                    <li>Will or Trust</li>
+                                    <li>Power of Attorney</li>
+                                    <li>Real Estate Transaction</li>
+                                    <li>Business Formation</li>
+                                    <li>Other Legal Matter</li>
+                                </ul>
+                            `
+                        },
+                        "Additional Details": {
+                            content: `
+                                <p>${basicTooltip}</p>
+                                <h3>Why This Matters</h3>
+                                <p>Providing additional details helps to give a clearer picture of your legal matter. This information can be crucial for understanding the context and specifics of your case.</p>
+                                <h3>Examples</h3>
+                                <p>Examples of additional details include:</p>
+                                <ul>
+                                    <li>Specific terms you want reviewed in a contract</li>
+                                    <li>Details about the property involved in a real estate transaction</li>
+                                    <li>Any special considerations for your legal matter</li>
+                                </ul>
+                            `
+                        },
+                        "Urgency Level": {
+                            content: `
+                                <p>${basicTooltip}</p>
+                                <h3>Why This Matters</h3>
+                                <p>The urgency level indicates how quickly you need your legal matter addressed. This helps prioritize your case based on its time sensitivity.</p>
+                                <h3>Examples</h3>
+                                <p>Examples of urgency levels include:</p>
+                                <ul>
+                                    <li>Immediate (within 24 hours)</li>
+                                    <li>Urgent (within 3 days)</li>
+                                    <li>Standard (within 1 week)</li>
+                                    <li>Flexible (within 1 month)</li>
+                                </ul>
+                            `
+                        }
+                    };
+            
+                    return explanations[fieldName]?.content || `<p>${basicTooltip}</p>`;
+                }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<nav class="navigation">
+    <div class="nav-container">
+        <div class="logo">
+            <a href="index.html" id="homeLink">
+                <img src="logo.png" alt="LegalVoice.AI Logo" id="navLogo">
+            </a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html" id="homeNavLink">Home</a></li>
+            <li><a href="document_selector.html" id="selectorNavLink">Create Document</a></li>
+            <li><a href="ocr_upload.html" id="ocrNavLink">Document Analysis</a></li>
+            <li><a href="#" id="savedFormsLink">Saved Forms</a></li>
+            <li><a href="#" id="helpLink">Help</a></li>
+        </ul>
+    </div>
+</nav>
+
+<script>
+    // Fix paths based on current location
+    (function() {
+        // Check if we're in a subdirectory
+        const isInSubdirectory = window.location.pathname.includes('/forms/');
+        const prefix = isInSubdirectory ? '../' : '';
+        
+        // Update image src
+        document.getElementById('navLogo').src = prefix + 'logo.png';
+        
+        // Update navigation links
+        document.getElementById('homeLink').href = prefix + 'index.html';
+        document.getElementById('homeNavLink').href = prefix + 'index.html';
+        document.getElementById('selectorNavLink').href = prefix + 'document_selector.html';
+        document.getElementById('ocrNavLink').href = prefix + 'ocr_upload.html';
+    })();
+
+    // Handle saved forms link
+    document.getElementById('savedFormsLink').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Check if there are saved forms
+        const savedForms = JSON.parse(localStorage.getItem('savedForms') || '[]');
+        
+        if (savedForms.length > 0) {
+            // Check if we're in a subdirectory
+            const isInSubdirectory = window.location.pathname.includes('/forms/');
+            const prefix = isInSubdirectory ? '../' : '';
+            window.location.href = prefix + 'saved_forms.html';
+        } else {
+            // Show message that no forms are saved
+            const statusMessage = document.createElement('div');
+            statusMessage.className = 'status-message';
+            statusMessage.textContent = 'No saved forms found. Create and save a document first.';
+            document.body.appendChild(statusMessage);
+            
+            setTimeout(() => {
+                statusMessage.remove();
+            }, 3000);
+        }
+    });
+    
+    // Help popup
+    document.getElementById('helpLink').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Create help modal if doesn't exist
+        let helpModal = document.getElementById('helpModal');
+        
+        if (!helpModal) {
+            helpModal = document.createElement('div');
+            helpModal.id = 'helpModal';
+            helpModal.className = 'modal';
+            helpModal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h2>Help Center</h2>
+                    <div class="help-content">
+                        <h3>Getting Started</h3>
+                        <p>Welcome to LegalVoice.AI! Here's how to get started:</p>
+                        <ol>
+                            <li>Click on "Create Document" to select a legal document type</li>
+                            <li>You can either use the chat interface or select directly from the document options</li>
+                            <li>Once you select a document, you'll be guided through the form completion</li>
+                            <li>Enable voice recognition to fill the form by speaking</li>
+                            <li>Review your information and download the completed document</li>
+                        </ol>
+                        
+                        <h3>Voice Commands</h3>
+                        <p>LegalVoice.AI supports natural voice commands such as:</p>
+                        <ul>
+                            <li>"My name is John Smith"</li>
+                            <li>"My address is 123 Main Street, Mumbai"</li>
+                            <li>"Clear the form"</li>
+                        </ul>
+                        <p>Each form type has specific supported voice commands. Check the voice instruction panel on the form page.</p>
+                        
+                        <h3>Need More Help?</h3>
+                        <p>For additional assistance, please contact us at support@legalvoice.ai</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(helpModal);
+            
+            // Add close functionality
+            const closeBtn = helpModal.querySelector('.close-modal');
+            closeBtn.addEventListener('click', function() {
+                helpModal.style.display = 'none';
+            });
+            
+            window.addEventListener('click', function(event) {
+                if (event.target == helpModal) {
+                    helpModal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Show the help modal
+        helpModal.style.display = 'block';
+    });
+</script>

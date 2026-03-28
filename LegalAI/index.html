@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegalVoice.AI - Effortless Legal Document Assistance</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="LegalVoice.AI Logo" style="width: 100px; height: auto; display: block; margin: 0 auto; padding-bottom: 10px;">
+        <h1>LegalVoice.AI</h1>
+        <p class="subheading">Simplifying legal documentation through voice and AI</p>
+    </header>
+
+    <!-- Navigation will be loaded here
+    <div id="nav-placeholder"></div> -->
+    <nav class="navigation">
+        <div class="nav-container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="logo.png" alt="LegalVoice.AI Logo" style="height: 50px; width: auto;">
+                </a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="document_selector.html">Create Document</a></li>
+                <li><a href="ocr_upload.html">Document Analysis</a></li>
+                <li><a href="#" id="savedFormsLink">Saved Forms</a></li>
+                <li><a href="#" id="helpLink">Help</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Legal Documentation Made Simple</h2>
+                <p>LegalVoice.AI helps you navigate complex legal forms with voice commands and AI assistance, making the process faster and error-free.</p>
+                <div class="cta-buttons">
+                    <a href="document_selector.html" class="cta-button primary">Get Started</a>
+                    <a href="#how-it-works" class="cta-button secondary">Learn More</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="hero-image.jpg" alt="Person using voice commands with a computer">
+            </div>
+        </section>
+
+        <section id="how-it-works" class="feature-section">
+            <h2>How It Works</h2>
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Select a Document</h3>
+                    <p>Choose from various legal document templates designed for Indian citizens.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎤</div>
+                    <h3>Voice-Guided Completion</h3>
+                    <p>Fill forms by speaking naturally - our AI understands and fills the right fields.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3>Review & Download</h3>
+                    <p>Verify your information and download your completed documents instantly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Document Analysis</h3>
+                    <p>Upload existing legal documents to analyze, summarize, and get explanations.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="document-types">
+            <h2>Supported Legal Documents</h2>
+            <p>We currently support the following Indian legal documents:</p>
+            <div class="document-grid">
+                <div class="document-card">
+                    <h3>Traffic Challan</h3>
+                    <p>Complete your traffic violation payment forms with ease.</p>
+                    <a href="document_selector.html?type=challan" class="doc-link">Fill Now</a>
+                </div>
+                <div class="document-card">
+                    <h3>Affidavit</h3>
+                    <p>Create general-purpose affidavits for various legal needs.</p>
+                    <a href="document_selector.html?type=affidavit" class="doc-link">Fill Now</a>
+                </div>
+                <div class="document-card">
+                    <h3>Power of Attorney</h3>
+                    <p>Designate someone to act on your behalf for specified matters.</p>
+                    <a href="document_selector.html?type=poa" class="doc-link">Fill Now</a>
+                </div>
+                <div class="document-card">
+                    <h3>Rent Agreement</h3>
+                    <p>Generate standard rental agreements with customizable terms.</p>
+                    <a href="document_selector.html?type=rent" class="doc-link">Fill Now</a>
+                </div>
+                <div class="document-card">
+                    <h3>Income Declaration</h3>
+                    <p>Create income declaration forms for various official purposes.</p>
+                    <a href="document_selector.html?type=income" class="doc-link">Fill Now</a>
+                </div>
+                <div class="document-card">
+                    <h3>Will</h3>
+                    <p>Draft a basic will document with proper legal formatting.</p>
+                    <a href="document_selector.html?type=will" class="doc-link">Fill Now</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <h2>Why People Love LegalVoice.AI</h2>
+            <div class="testimonial-container">
+                <div class="testimonial">
+                    <p class="quote">"I filled my rental agreement in minutes using just my voice. Saved me hours of paperwork!"</p>
+                    <p class="author">- Rahul M., Bengaluru</p>
+                </div>
+                <div class="testimonial">
+                    <p class="quote">"The document analysis feature helped me understand my complex property papers without legal consultation."</p>
+                    <p class="author">- Priya S., Mumbai</p>
+                </div>
+                <div class="testimonial">
+                    <p class="quote">"As someone with limited typing abilities, the voice commands make legal documentation accessible for me."</p>
+                    <p class="author">- Vikram T., Delhi</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="legal-disclaimer">
+        <p><strong>Disclaimer:</strong> This application is provided for informational and convenience purposes only and is not a substitute for professional legal advice. For legal matters, please consult with a qualified attorney.</p>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 LegalVoice.AI Assistant | All Rights Reserved</p>
+        <p>A secure and efficient way to complete legal documentation</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function(){
+            $("#nav-placeholder").load("nav.html");
+        });
+    </script>
+    <script src="scripts.js"></script>
+</body>
+</html>

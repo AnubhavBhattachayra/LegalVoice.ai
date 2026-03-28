@@ -1,0 +1,183 @@
+@import "tailwindcss";
+
+:root {
+  /* Sci-fi themed colors - Darker version */
+  --background: #07081a;
+  --foreground: #ecf0ff;
+  --primary: #3c24c2;
+  --primary-hover: #482fd0;
+  --secondary: #0c8bdb;
+  --secondary-hover: #0a75bb;
+  --accent: #ff2a7f;
+  --muted: #1c1f36;
+  --card: #0e1022;
+  --border: #272c47;
+  
+  /* Typography */
+  --font-sans: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), monospace;
+  
+  /* Glowing effect constants */
+  --glow-primary: 0 0 15px rgba(60, 36, 194, 0.6);
+  --glow-secondary: 0 0 20px rgba(12, 139, 219, 0.5);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #07081a;
+    --foreground: #ecf0ff;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Still make light mode darker than before */
+    --background: #0e1022;
+    --foreground: #ecf0ff;
+    --card: #171930;
+    --muted: #21243c;
+    --border: #2d3250;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
+}
+
+/* Custom selection color */
+::selection {
+  background-color: var(--primary);
+  color: white;
+}
+
+/* Add tailwind styles to modify button and input styles */
+@layer components {
+  .btn-primary {
+    @apply bg-[color:var(--primary)] text-white px-4 py-2 rounded-md hover:bg-[color:var(--primary-hover)] transition-all duration-300;
+  }
+  
+  .btn-secondary {
+    @apply bg-[color:var(--secondary)] text-white px-4 py-2 rounded-md hover:bg-[color:var(--secondary-hover)] transition-all duration-300;
+  }
+  
+  .btn-ghost {
+    @apply bg-transparent border border-[color:var(--border)] text-[color:var(--foreground)] px-4 py-2 rounded-md hover:bg-[color:var(--muted)] transition-all duration-300;
+  }
+  
+  .card {
+    @apply bg-[color:var(--card)] border border-[color:var(--border)] rounded-xl p-6 shadow-lg;
+  }
+  
+  .input {
+    @apply bg-[color:var(--muted)] border border-[color:var(--border)] text-[color:var(--foreground)] px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)] transition-all duration-300;
+  }
+}
+
+/* Typing cursor animation */
+@keyframes blink {
+  0% { opacity: 0.2; transform: scaleY(0.85); }
+  50% { opacity: 1; transform: scaleY(1.1); }
+  100% { opacity: 0.2; transform: scaleY(0.85); }
+}
+
+.animate-blink {
+  animation: blink 1.8s ease-in-out infinite;
+  background-color: white;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.9), 0 0 12px rgba(255, 42, 127, 0.6);
+  width: 3px !important;
+  height: 22px !important;
+  border-radius: 1px;
+}
+
+/* Glowing button effect */
+.glow-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-effect:after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: var(--primary);
+  filter: blur(15px);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  z-index: -1;
+  border-radius: inherit;
+}
+
+.glow-effect:hover:after {
+  opacity: 0.4;
+}
+
+/* Chat page ambient gradient */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+.chat-gradient-bg {
+  background: linear-gradient(
+    135deg,
+    rgba(12, 17, 41, 0.8) 0%,
+    rgba(28, 31, 54, 0.4) 25%,
+    rgba(60, 36, 194, 0.2) 50%,
+    rgba(12, 139, 219, 0.2) 75%,
+    rgba(10, 12, 32, 0.8) 100%
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+  position: relative;
+}
+
+.chat-gradient-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at top right, rgba(255, 42, 127, 0.12), transparent 40%),
+              radial-gradient(circle at bottom left, rgba(60, 36, 194, 0.1), transparent 40%);
+  pointer-events: none;
+  z-index: -1;
+}

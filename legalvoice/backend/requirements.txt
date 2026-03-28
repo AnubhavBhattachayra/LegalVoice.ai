@@ -1,0 +1,43 @@
+fastapi==0.110.0
+uvicorn==0.27.1
+python-multipart==0.0.9
+pydantic==2.6.3
+motor==3.3.2
+python-jose[cryptography]==3.3.0
+passlib==1.7.4
+bcrypt==4.1.2
+pymongo==4.6.1
+google-generativeai==0.5.4
+python-dotenv==1.0.0
+pillow==10.2.0
+
+# LangChain ecosystem
+langchain==0.1.16
+langchain-core>=0.1.42
+langchain-community>=0.0.32
+langchain-google-genai>=1.0.1
+
+# OCR and document processing
+pytesseract==0.3.10
+opencv-python==4.9.0.80
+pdf2image==1.17.0
+pymupdf==1.23.26
+
+# Voice processing (Whisper)
+openai-whisper==20231117
+torch==2.2.1
+torchaudio==2.2.1
+
+# RAG / Vector search
+faiss-cpu==1.7.4
+sentence-transformers==2.6.1
+rank-bm25==0.2.2
+
+# Agentic AI (AutoGen)
+pyautogen==0.2.25
+
+# HTTP client
+httpx==0.26.0
+
+# Firebase
+firebase-admin==6.4.0
